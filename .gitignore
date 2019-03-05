@@ -1,0 +1,4 @@
+/.vscode
+/alice_env
+*.pyc
+*.pyd
