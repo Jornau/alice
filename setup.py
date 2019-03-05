@@ -1,17 +1,17 @@
 from setuptools import setup, find_packages
 
-setup(name='alice',
+setup(name='pyalice',
       version='0.1',
       description='Yandex.Dialogs non-official package.',
       long_description='Processing requests and sending responses for Yandex.Dialogs API.',
       classifiers=[
         'Development Status :: 3 - Alpha',
-        'License :: MIT License',
-        'Programming Language :: Python :: 3.7.2',
-        'Topic :: API :: Bots',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 3.7',
+        'Topic :: Software Development :: Libraries :: Python Modules',
       ],
       keywords='yandex dialogs alice skills',
-      url='http://github.com/storborg/funniest',
+      url='https://github.com/Jornau/alice',
       author='Alexander Surkov',
       author_email='jornau@yandex.ru',
       license='MIT',

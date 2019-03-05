@@ -1,4 +1,8 @@
 /.vscode
 /alice_env
+/build
+/dist
 *.pyc
 *.pyd
+*.egg
+*.egg-info
