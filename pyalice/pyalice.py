@@ -1,6 +1,7 @@
 import json
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
+import pytz
 
 _DEFAULT_STRING = None
 _DEFAULT_NUMBER = 0
@@ -9,6 +10,11 @@ ITEMSLIST_CARD = 'ItemsList'
 _STATUS_URL = 'https://dialogs.yandex.net/api/v1/status'
 _IMAGES_URL = 'https://dialogs.yandex.net/api/v1/skills/%s/images'
 _DELETE_IMAGES = 'https://dialogs.yandex.net/api/v1/skills/%s/images/%s'
+
+YA_FIO = 'YANDEX.FIO'
+YA_GEO = 'YANDEX.GEO'
+YA_DT = 'YANDEX.DATETIME'
+YA_NUMBER = 'YANDEX.NUMBER'
 
 class ImageManager(object):
 
@@ -153,6 +159,42 @@ class Response(object):
         self.buttons = buttons
         self.end_session = end
 
+    def add_tip_button(self, text = None, url = None, payload = {}, hide=False):
+        if (self.buttons == None):
+            self.buttons = []
+        self.buttons.append(TipButton(text, url, payload, hide))
+        return self
+
+    def add_image_card(self, image_id = None, title = None, description = None, Button = None):
+            self.card = BigImage(image_id, title, description, Button)
+            return self
+
+    def add_items_card(self, images = [], header = None, footer = None):
+            self.card = ItemsList(images, header, footer)
+            return self
+    
+    def add_header(self, text):
+        self.card.header = Header(text)
+        return self
+
+    def add_image(self, image_id = None, title = None, description = None, button = None):
+        image = ImageItem(image_id, title, description, button)
+        self.card.items.append(image)
+        return self
+
+    def add_footer(self, text, button = None):
+        self.card.footer = Footer(text, button)
+        return self
+
+    def add_footer_button(self, text, url = None, payload = {}, hide=False):
+        self.card.footer.button = FooterButton(text, url, payload)
+        return self
+
+    def add_image_button(self, text = None, url = None, payload = {}):
+        img = self.card.items[-1] if self.card.type == ITEMSLIST_CARD else self.card
+        img.add_button(text, url, payload)
+        return self
+
 class _SessionR(object):
 
     def __init__(self, session):
@@ -239,10 +281,14 @@ class RequestEncoder(json.JSONEncoder):
                 elif isinstance(obj.response.card, ItemsList):
                     if (obj.response.card.header is not None):
                         card['header'] = self.to_dict(obj.response.card.header)
-                        items = []
-                        card['items'] = items
+                    items = []
+                    card['items'] = items
                     for item in obj.response.card.items:
                         items.append(self.build_card(item))
+                    if (obj.response.card.footer is not None):
+                        if (obj.response.card.footer.button):
+                            obj.response.card.footer.button = self.to_dict(obj.response.card.footer.button)
+                        card['footer'] = self.to_dict(obj.response.card.footer)
                
             if (obj.response.buttons is not None):
                 buttons = []
@@ -284,6 +330,9 @@ class In(object):
         self.session = _Session(j['session'])
         self.version = j['version']
 
+    def get_entities(self, ya_type):
+        return [x for x in self.request.nlu.entities if x.type == ya_type]
+
 class _Request(object):
 
     def __init__(self, j):
@@ -315,13 +364,13 @@ class _Entities(object):
     def __init__(self, j):
         self.entites = []
         for ent in j:
-            if ent['type'] == 'YANDEX.FIO':
+            if ent['type'] == YA_FIO:
                 self.entites.append(_Fio(ent))
-            if ent['type'] == 'YANDEX.GEO':
+            if ent['type'] == YA_GEO:
                 self.entites.append(_Geo(ent))
-            if ent['type'] == 'YANDEX.DATETIME':
+            if ent['type'] == YA_DT:
                 self.entites.append(_DateTime(ent))
-            if ent['type'] == 'YANDEX.NUMBER':
+            if ent['type'] == YA_NUMBER:
                 self.entites.append(_Number(ent))                
 
 class _Session(object):
@@ -361,6 +410,49 @@ class _DateTime(_Entity):
     def __init__(self, j):
         super().__init__(j)
         self.value = _DateTimeFields(j['value'])
+
+    def get_datetime(self, tz):
+        tzone = pytz.timezone(tz)
+        dt_loc = datetime.now(tzone)
+        offset_delta = dt_loc.utcoffset()
+        offset = int(offset_delta.total_seconds() / 3600)
+        timeset = True
+        print(self.value.year)
+        if self.value.year_is_relative == True:
+            dt_loc = dt_loc + timedelta(days=self.value.year * 365)
+        elif self.value.year_is_relative == False:
+            dt_loc = dt_loc.replace(year=self.value.year)
+
+        if self.value.month_is_relative == True:
+            dt_loc = dt_loc + timedelta(months=self.value.month)
+        elif self.value.month_is_relative == False:
+            dt_loc = dt_loc.replace(month=self.value.month)
+
+        if self.value.day_is_relative == True:
+            dt_loc = dt_loc + timedelta(days=self.value.day)
+        elif self.value.day_is_relative == False:
+            dt_loc = dt_loc.replace(day=self.value.day)
+
+        if self.value.hour_is_relative == True:
+            dt_loc = dt_loc + timedelta(hours=self.value.hour)
+        elif self.value.hour_is_relative == False:
+            dt_loc = dt_loc.replace(hour=self.value.hour)
+        else:
+            timeset = False
+
+        if self.value.minute_is_relative == True:
+            dt_loc = dt_loc + timedelta(minutes=self.value.minute)
+            timeset = True
+        elif self.value.minute_is_relative == False:
+            dt_loc = dt_loc.replace(minute=self.value.minute)
+            timeset = True
+        else:
+            dt_loc = dt_loc.replace(minute=0)
+
+        if timeset == False:
+            dt_loc = dt_loc.replace(hour=23, minute=0)
+
+        return dt_loc, offset
 
 class _Number(_Entity):
 

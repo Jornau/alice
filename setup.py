@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='pyalice',
-      version='0.2.1.2',
+      version='0.2.1.3',
       description='Yandex.Dialogs non-official package.',
       long_description='Processing requests and sending responses for Yandex.Dialogs API.',
       classifiers=[
