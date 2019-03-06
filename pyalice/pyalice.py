@@ -1,5 +1,6 @@
 import json
 import requests
+from datetime import datetime
 
 _DEFAULT_STRING = None
 _DEFAULT_NUMBER = 0
@@ -307,7 +308,7 @@ class _nlu(object):
 
     def __init__(self, j):
         self.tokens = j['tokens']
-        self.entites = _Entities(j['entities']).entites
+        self.entities = _Entities(j['entities']).entites
 
 class _Entities(object):
 
@@ -385,15 +386,15 @@ class _DateTimeFields(object):
     
     def __init__(self, j):
         self.year = _check_key('year', j, _DEFAULT_NUMBER)
-        self.year_is_relative = _check_key('year_is_relative', j, _DEFAULT_NUMBER)
+        self.year_is_relative = _check_key('year_is_relative', j, None)
         self.month = _check_key('month', j, _DEFAULT_NUMBER)
-        self.month_is_relative = _check_key('month_is_relative', j, _DEFAULT_NUMBER)
+        self.month_is_relative = _check_key('month_is_relative', j, None)
         self.day = _check_key('day', j, _DEFAULT_NUMBER)
-        self.day_is_relative = _check_key('day_is_relative', j, _DEFAULT_NUMBER)
+        self.day_is_relative = _check_key('day_is_relative', j, None)
         self.hour = _check_key('hour', j, _DEFAULT_NUMBER)
-        self.hour_is_relative = _check_key('hour_is_relative', j, _DEFAULT_NUMBER)
+        self.hour_is_relative = _check_key('hour_is_relative', j, None)
         self.minute = _check_key('minute', j, _DEFAULT_NUMBER)
-        self.minute_is_relative = _check_key('minute_is_relative', j, _DEFAULT_NUMBER)
+        self.minute_is_relative = _check_key('minute_is_relative', j, None)
 
 def _check_key(k, j, default):
     return j[k] if k in j else default
