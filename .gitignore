@@ -2,6 +2,7 @@
 /alice_env
 /build
 /dist
+test.py
 *.pyc
 *.pyd
 *.egg

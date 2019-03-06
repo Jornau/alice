@@ -97,12 +97,12 @@ class Quota(object):
         self.total = total
         self.used = used
 
-class Response(object):
+class Out(object):
 
-    def __init__(self, request, text, tts = None, card = None, end = False, buttons = None):
-        self.response = ResponseBody(text, tts, card, buttons, end)
-        self.session = _SessionR(request.session)
-        self.version = request.version
+    def __init__(self, incoming, text = None, tts = None, card = None, end = False, buttons = None):
+        self.response = Response(text, tts, card, buttons, end)
+        self.session = _SessionR(incoming.session)
+        self.version = incoming.version
 
     def add_button(self, text = None, url = None, payload = {}, hide=False):
         if (self.response.buttons == None):
@@ -143,9 +143,9 @@ class Response(object):
     def build_json(self):
         return json.dumps(self, cls=RequestEncoder, ensure_ascii=False)
 
-class ResponseBody(object):
+class Response(object):
 
-    def __init__(self, text, tts, card, buttons, end):
+    def __init__(self, text = None, tts = None, card = None, buttons = None, end = False):
         self.text = text
         self.tts = tts
         self.card = card
@@ -222,13 +222,13 @@ class ItemsList(object):
 
 class RequestEncoder(json.JSONEncoder):
     def default(self, obj): # pylint: disable=E0202
-        if (isinstance(obj, Response)):
+        if (isinstance(obj, Out)):
             result = {}
             response = {}
             result['response'] = response
             response['text'] = obj.response.text
             if (obj.response.tts is not None):
-                response['tts'] = obj.response.text
+                response['tts'] = obj.response.tts
             if (obj.response.card is not None):
                 card = {}
                 response['card'] = card
@@ -275,15 +275,15 @@ class RequestEncoder(json.JSONEncoder):
                 result[k] = v
         return result     
 
-class Request(object):
+class In(object):
 
     def __init__(self, j):
         self.meta = _Meta(j['meta'])
-        self.request = _RequestBody(j['request'])
+        self.request = _Request(j['request'])
         self.session = _Session(j['session'])
         self.version = j['version']
 
-class _RequestBody(object):
+class _Request(object):
 
     def __init__(self, j):
         self.command = j['command']
