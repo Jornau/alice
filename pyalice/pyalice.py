@@ -342,7 +342,7 @@ class _Request(object):
         self.type = j['type']
         if 'markup' in j:
             self.markup = list(j['markup'].keys())
-        self.payload = j['payload']
+        self.payload = j.get('payload', None)
         self.nlu = _nlu(j['nlu'])
 
 class _Meta(object):
