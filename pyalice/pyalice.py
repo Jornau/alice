@@ -1,6 +1,7 @@
 import json
 import requests
 from datetime import datetime, timedelta
+from datedelta import datedelta
 import pytz
 
 _DEFAULT_STRING = None
@@ -222,7 +223,7 @@ class FooterButton(_ButtonBase):
 
 class TipButton(_ButtonBase):
 
-    def __init__(self, title, url = None, payload = {}, hide = False):
+    def __init__(self, title, url = None, payload = {}, hide = True):
         self.title = title
         super().__init__(url, payload)
         self.hide = hide
@@ -417,14 +418,13 @@ class _DateTime(_Entity):
         offset_delta = dt_loc.utcoffset()
         offset = int(offset_delta.total_seconds() / 3600)
         timeset = True
-        print(self.value.year)
         if self.value.year_is_relative == True:
-            dt_loc = dt_loc + timedelta(days=self.value.year * 365)
+            dt_loc = dt_loc + datedelta(years=self.value.year)
         elif self.value.year_is_relative == False:
             dt_loc = dt_loc.replace(year=self.value.year)
 
         if self.value.month_is_relative == True:
-            dt_loc = dt_loc + timedelta(months=self.value.month)
+            dt_loc = dt_loc + datedelta(months=self.value.month)
         elif self.value.month_is_relative == False:
             dt_loc = dt_loc.replace(month=self.value.month)
 
