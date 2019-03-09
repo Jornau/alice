@@ -337,7 +337,7 @@ class In(object):
 class _Request(object):
 
     def __init__(self, j):
-        self.command = j['command']
+        self.command = j.get('command', _DEFAULT_STRING)
         self.original_utterance = j['original_utterance']
         self.type = j['type']
         if 'markup' in j:
@@ -462,31 +462,28 @@ class _Number(_Entity):
 
 class _FioFields(object):
     def __init__(self, j):
-        self.first_name = _check_key('first_name', j, _DEFAULT_STRING)
-        self.patronymic_name = _check_key('patronymic_name', j, _DEFAULT_STRING)
-        self.last_name = _check_key('last_name', j, _DEFAULT_STRING)
+        self.first_name = j.get('first_name', _DEFAULT_STRING)
+        self.patronymic_name = j.get('patronymic_name', _DEFAULT_STRING)
+        self.last_name = j.get('last_name', _DEFAULT_STRING)
 
 class _GeoFields(object):
     def __init__(self, j):
-        self.country = _check_key('country', j, _DEFAULT_STRING)
-        self.city = _check_key('city', j, _DEFAULT_STRING)
-        self.street = _check_key('street', j, _DEFAULT_STRING)
-        self.house_number = _check_key('house_number', j, _DEFAULT_STRING)
-        self.airport = _check_key('airport', j, _DEFAULT_STRING)
+        self.country = j.get('country', _DEFAULT_STRING)
+        self.city = j.get('city', _DEFAULT_STRING)
+        self.street = j.get('street', _DEFAULT_STRING)
+        self.house_number = j.get('house_number', _DEFAULT_STRING)
+        self.airport = j.get('airport', _DEFAULT_STRING)
 
 class _DateTimeFields(object):
     
     def __init__(self, j):
-        self.year = _check_key('year', j, _DEFAULT_NUMBER)
-        self.year_is_relative = _check_key('year_is_relative', j, None)
-        self.month = _check_key('month', j, _DEFAULT_NUMBER)
-        self.month_is_relative = _check_key('month_is_relative', j, None)
-        self.day = _check_key('day', j, _DEFAULT_NUMBER)
-        self.day_is_relative = _check_key('day_is_relative', j, None)
-        self.hour = _check_key('hour', j, _DEFAULT_NUMBER)
-        self.hour_is_relative = _check_key('hour_is_relative', j, None)
-        self.minute = _check_key('minute', j, _DEFAULT_NUMBER)
-        self.minute_is_relative = _check_key('minute_is_relative', j, None)
-
-def _check_key(k, j, default):
-    return j[k] if k in j else default
+        self.year = j.get('year', _DEFAULT_NUMBER)
+        self.year_is_relative = j.get('year_is_relative', None)
+        self.month = j.get('month', _DEFAULT_NUMBER)
+        self.month_is_relative = j.get('month_is_relative', None)
+        self.day = j.get('day', _DEFAULT_NUMBER)
+        self.day_is_relative = j.get('day_is_relative', None)
+        self.hour = j.get('hour', _DEFAULT_NUMBER)
+        self.hour_is_relative = j.get('hour_is_relative', None)
+        self.minute = j.get('minute', _DEFAULT_NUMBER)
+        self.minute_is_relative = j.get('minute_is_relative', None)
